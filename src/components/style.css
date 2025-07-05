@@ -331,30 +331,10 @@
         box-shadow: 0 0 5px rgba(63, 81, 181, 0.5);
     }
     
-    #btn {
-        border: none;
-        outline: none;
-        text-align: center;
-        background-color: rgb(11, 11, 17);
-        width: 90%;
-        height: 45px;
-        border-radius: 8px;
-        color: white;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background 0.3s ease-in-out;
-    }
-    
-    #btn:hover {
-        background-color: rgb(63, 81, 181);
-    }
-    
     #sign {
         margin-top: 10px;
         text-decoration: none;
         color: rgb(63, 81, 181);
-        font-size: 1rem;
     }
     
     #sign:hover {

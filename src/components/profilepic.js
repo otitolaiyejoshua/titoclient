@@ -40,7 +40,7 @@ function ProfilePic(){
         formData.append('userId',userId);
         formData.append('bio',Bio);
         try{
-        const request = await axios.post('http://localhost:5000/api/profilepic',formData,{
+        const request = await axios.post('https://titoserver.onrender.com/api/profilepic',formData,{
               headers:{'Content-Type': 'multipart/form-data'},
             });
             console.log(request)

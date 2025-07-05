@@ -47,7 +47,7 @@ const TweetForm = (props)=> {
           formData.append('userId',userId)
         }
         try{
-            const request = await axios.post('http://localhost:5000/api/tweets',formData,{
+            const request = await axios.post('https://titoserver.onrender.com/api/tweets',formData,{
               headers:{'Content-Type': 'multipart/form-data'},
             });
             setCaption('')

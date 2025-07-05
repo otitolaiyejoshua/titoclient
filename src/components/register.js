@@ -13,7 +13,7 @@ function Register(){
         e.preventDefault();
     
         try {
-          const response = await axios.post('http://localhost:5000/api/register', { username, email,password });
+          const response = await axios.post('https://titoserver.onrender.com/api/register', { username, email,password });
           setMessage(response.data.message);
           setUsername('');
           setPassword('');

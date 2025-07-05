@@ -14,8 +14,8 @@ function Home(){
     });
     return(
         <div id="app">
-            <Post/>
             <Header/>
+            <Post/>
             <Navbar/>
         </div>
     )

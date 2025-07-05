@@ -17,7 +17,7 @@ function TweetDetails() {
 
     const fetchTweetAndComments = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/tweets/${tweetid}/details`);
+            const response = await axios.get(`https://titoserver.onrender.com/api/tweets/${tweetid}/details`);
             console.log("Fetched Data:", response.data); // Debugging
 
             setTweet(response.data.tweet);
@@ -42,7 +42,7 @@ function TweetDetails() {
     
         try {
             const response = await axios.post(
-                `http://localhost:5000/api/tweets/${tweetid}/comments`,
+                `https://titoserver.onrender.com/api/tweets/${tweetid}/comments`,
                 { commentText: newComment },
                 {
                     headers: { Authorization: `Bearer ${token}` }, // ✅ Ensure correct format
@@ -62,11 +62,11 @@ function TweetDetails() {
             {tweet && (
                 <div className="tweet-card">
                     <div className="tweet-header">
-                        <img src={tweet.profile_picture ? `http://localhost:5000/uploads/${tweet.profile_picture}` : defaultProfilePic} alt="Profile" className="profile-pic" />
+                        <img src={tweet.profile_picture ? `https://titoserver.onrender.com/uploads/${tweet.profile_picture}` : defaultProfilePic} alt="Profile" className="profile-pic" />
                         <span className="tweet-username">{tweet.username}</span>
                     </div>
                     <p className="tweet-text">{tweet.caption}</p>
-                    {tweet.imageUrl && <img className="tweet-image" src={`http://localhost:5000/uploads/${tweet.imageUrl}`} alt="Tweet" />}
+                    {tweet.imageUrl && <img className="tweet-image" src={`https://titoserver.onrender.com/uploads/${tweet.imageUrl}`} alt="Tweet" />}
                 </div>
             )}
 
@@ -80,7 +80,7 @@ function TweetDetails() {
                 {comments.length > 0 ? (
                     comments.map((comment) => (
                         <div key={comment.id} className="comment">
-                            <img src={comment.profile_picture ? `http://localhost:5000/uploads/${comment.profile_picture}` : defaultProfilePic} alt="Profile" className="profile-pic" />
+                            <img src={comment.profile_picture ? `https://titoserver.onrender.com/uploads/${comment.profile_picture}` : defaultProfilePic} alt="Profile" className="profile-pic" />
                             <div className="comment-text">
                                 <span className="comment-username">{comment.username}</span>
                                 <p>{comment.comment_text}</p>

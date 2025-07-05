@@ -5,6 +5,8 @@ import Notifications from './components/notifications.js'
 import Register from './components/register'
 import Home from './components/home'
 import User from './components/user.js'
+import FriendsList from './components/FriendsList.js'
+import UserProfileById from './components/userProfileById.js';
 import {useNavigate} from 'react-router-dom'
 import Settings from './components/settings.js'
 import {BrowserRouter as Router,Routes,Route} from 'react-router-dom';
@@ -30,8 +32,11 @@ function App(){
         <Route path="/forgotpass" element={<Forgotpass/>}/>
         <Route path="/user" element={<User/>}/>
         <Route path='/settings' element={<Settings/>}/>
+        <Route path='/friends' element={<FriendsList/>}/>
         <Route path='/notifications' element={<Notifications/>}/>
         <Route path="/tweets/:tweetid" element={<TweetDetails />} />
+        <Route path="/user/:username" element={<UserProfileById />} />
+
       </Routes>
     </Router>
     </div>

@@ -32,7 +32,7 @@ function Navbar() {
 
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/user/${userId}`);
+                const response = await axios.get(`https://titoserver.onrender.com/api/user/${userId}`);
                 setProfilePic(response.data?.profile_picture || '');
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -48,7 +48,7 @@ function Navbar() {
         const fetchNotifications = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`http://localhost:5000/api/notifications/${userId}`, {
+                const response = await axios.get(`https://titoserver.onrender.com/api/notifications/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setNotifications(response.data);
@@ -80,7 +80,7 @@ function Navbar() {
             // Send requests to mark each unread notification as read
             await Promise.all(
                 unreadNotifications.map(notification => 
-                    axios.post(`http://localhost:5000/api/notifications/${notification.id}/read`, {}, {
+                    axios.post(`https://titoserver.onrender.com/api/notifications/${notification.id}/read`, {}, {
                         headers: { Authorization: `Bearer ${token}` }
                     })
                 )
@@ -135,7 +135,7 @@ function Navbar() {
                 
                 <img
                     id="pic"
-                    src={profilePic ? `http://localhost:5000/uploads/${profilePic}` : defaultProfilePic}
+                    src={profilePic ? `https://titoserver.onrender.com/uploads/${profilePic}` : defaultProfilePic}
                     className="navicons"
                     onClick={() => navigate('/user')}
                     alt="Profile"

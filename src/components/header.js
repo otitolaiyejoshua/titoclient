@@ -8,10 +8,13 @@ function Header(){
     function handleNotifications(){
         navigate('/notifications')
     }
+    function handleFriends(){
+        navigate('/friends')
+    }
     return(
         <>
             <div id="header">
-                <FontAwesomeIcon id="friendly" icon="fa solid fa-user-plus"/>
+                <FontAwesomeIcon onClick={handleFriends} id="friendly" icon="fa solid fa-user-plus"/>
                 <img id="mid" src={Tito} alt="logo"/>
                 <FontAwesomeIcon onClick={handleNotifications} id="friendly" icon="fa solid fa-bell"/>
             </div>

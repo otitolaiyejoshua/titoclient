@@ -1,135 +1,198 @@
-import React,{useState,useEffect} from 'react'
-import axios from 'axios'
-import jwtDecode from 'jwt-decode'
-import Navbar from './nav.js'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+import Navbar from './nav.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {useNavigate} from 'react-router-dom'
-function Search(){
+import { useNavigate } from 'react-router-dom';
+
+function Search() {
     const navigate = useNavigate();
-    const [option,setOption] = useState(false);
-    const [tops,setTops] = useState([]);
-    const [userId,setUserId] = useState(null)
-    const [name,setName] = useState('');
-    const [postno,setPostNo] = useState('');
-    const [profilePic,setProfilePic] = useState('')
-    const [username,setUsername] = useState('');
-    const [value,setValue] = useState('');
-    const [bio,setBio] = useState('');
-    const [likesData,SetLikesData] = useState([]);
-    const [colorArray,setColorArray] = useState([]);
-    useEffect(()=>{
+    const [userId, setUserId] = useState(null);
+    const [username, setUsername] = useState('');
+    const [searchedUser, setSearchedUser] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [likesData, setLikesData] = useState([]);
+    const [userLikes, setUserLikes] = useState([]);
+    const [isFollowing, setIsFollowing] = useState(false);
+
+    useEffect(() => {
         const token = localStorage.getItem('token');
-        if(!token){
-            navigate('/login')
+        if (!token) {
+            navigate('/login');
+            return;
         }
-        if (token){
-            const decodedToken = jwtDecode(token);
-            setUserId(decodedToken.userId);
-            console.log(userId)
+
+        const decodedToken = jwtDecode(token);
+        setUserId(decodedToken.userId);
+    }, [navigate]);
+
+    const fetchUserLikes = async () => {
+        if (!userId) return;
+        try {
+            const response = await axios.get(`https://titoserver.onrender.com/api/tops/${userId}`);
+            setUserLikes(response.data);
+        } catch (error) {
+            console.error('Error fetching personal likes:', error);
         }
-    });
-    const fetchPersonalLikes = async ()=>{
-        try{
-            const url = 'http://localhost:5000/api/tops/'+userId;
-            const personal = await axios.get(url,{
-            });
-            setColorArray(personal.data)
-            console.log(colorArray)
-        }catch{
-            console.log("null")
-        }
-}
-const hasUserLikedTweet = async(tweetId)=>{
-    return colorArray.some((color)=> color.tweet_id === tweetId)
-}
-    const fetchLikes = async ()=>{
-        const likesPromises = tops.map(async(top)=>{
-            try{
-                const response = await axios.get('http://localhost:5000/api/tweets/'+top.id+'/likes');
-                console.log(response)
-                return{tweetId: top.id, likes: response.data.likecounts}
-            }catch(error){
-                console.error('Error fetching likes:',error);
-                return {tweetId: top.id,likes:0}
+    };
+
+    const fetchLikes = async (tweetArray) => {
+        const likePromises = tweetArray.map(async (post) => {
+            try {
+                const res = await axios.get(`https://titoserver.onrender.com/api/tweets/${post.id}/likes`);
+                return { tweetId: post.id, likes: res.data.likecounts };
+            } catch {
+                return { tweetId: post.id, likes: 0 };
             }
-        })
-        const likesData = await Promise.all(likesPromises);
-        SetLikesData(likesData);
-        console.log(likesData)
-        fetchPersonalLikes();
-    }
-    const handleUsers =  async()=>{
-        try{
-            const response = await axios.get('http://localhost:5000/api/users/'+username,{});
-            console.log(response);
-            setTops(response.data)
-            console.log(tops.id)
-            setBio(response.data[0].bio)
-            setProfilePic(response.data[0].profile_picture)
-            setName(response.data[0].username);
-            setPostNo(response.data.length)
-            console.log(postno)
-        }catch(error){
-            console.error('Error finding user');
-        }   
-    }
-    const handleLove =async (tweetid)=>{
-        try{
-            const liking = axios.post('http://localhost:5000/api/tweets/'+tweetid+'/like',{userId},{
-            });
-            console.log(liking[0])
-        }catch(error){
-            console.error('Error liking a post',error)
+        });
+        const results = await Promise.all(likePromises);
+        setLikesData(results);
+    };
+
+    const handleSearch = async () => {
+        try {
+            const response = await axios.get(`https://titoserver.onrender.com/api/users/${username}`);
+            const { user, posts } = response.data;
+
+            setSearchedUser(user);
+            setPosts(posts);
+            fetchLikes(posts);
+            fetchUserLikes();
+
+            // Check follow status
+            const checkFollow = await axios.get(`https://titoserver.onrender.com/api/follow/status/${userId}/${user.userId}`);
+            setIsFollowing(checkFollow.data.following);
+        } catch (error) {
+            console.error('Error searching user:', error);
         }
-        fetchLikes();
-    }
-    
-    const handleBack = function(){
-        navigate('/')
-    }
-   return(
-    <div>
-        <div id="search">
-            <span id="back" onClick={handleBack}><FontAwesomeIcon icon="arrow-left"/></span>
-            <input id="searchpeople" onChange={(e)=> setUsername(e.target.value)} type="text" placeholder="Search users #tags "/>
-            <span id="handleusers" onClick={handleUsers}><FontAwesomeIcon icon="search"/></span>
-        </div>
-        <div id="userinfo">
-        <div id="userpage">
-            <div id="portfolio">
-                {profilePic && <img id="profile" src={'http://localhost:5000/uploads/'+profilePic}  alt="profilepic"/>}
-                <span id="name">{name}</span>
-                {bio && <span id="biodata">{bio}</span>}
-                {profilePic && <div id="details"><span className="in"><span className="value">100</span>Friends</span><span className='in'><span className='value'>{postno}</span>Posts</span><span className='in'><span className='value'>20</span>Comments</span></div>}
+    };
+
+    const handleLike = async (tweetId) => {
+        try {
+            await axios.post(`https://titoserver.onrender.com/api/tweets/${tweetId}/like`, { userId });
+            fetchUserLikes();
+            fetchLikes(posts);
+        } catch (error) {
+            console.error('Error liking post:', error);
+        }
+    };
+
+    const hasUserLiked = (tweetId) => {
+        return userLikes.some((like) => like.tweet_id === tweetId);
+    };
+
+    const toggleFollow = async () => {
+        try {
+            await axios.post(`https://titoserver.onrender.com/api/users/${searchedUser.userId}/follow`, {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+            setIsFollowing(!isFollowing);
+        } catch (error) {
+            console.error('Error following user:', error);
+        }
+    };
+
+    return (
+        <div>
+            <div id="search">
+                <span id="back" onClick={() => navigate('/')}><FontAwesomeIcon icon="arrow-left" /></span>
+                <input
+                    id="searchpeople"
+                    onChange={(e) => setUsername(e.target.value)}
+                    type="text"
+                    placeholder="Search users #tags "
+                />
+                <span id="handleusers" onClick={handleSearch}>
+                    <FontAwesomeIcon icon="search" />
+                </span>
             </div>
-        </div>
-        <div id="cards2">
-            {tops.map((top,index)=>(
-                <div id="post" key={top.id}>
-                    <div id="content">
-                        <div id="horizon">
-                            <div id="images">
-                                <img id="postimage" src={'http://localhost:5000/uploads/'+top.profile_picture}/>
+
+            {searchedUser && (
+                <div id="userinfo">
+                    <div id="userpage">
+                        <div id="portfolio">
+                            {searchedUser.profile_picture && (
+                                <img
+                                    id="profile"
+                                    src={`https://titoserver.onrender.com/uploads/${searchedUser.profile_picture}`}
+                                    alt="Profile"
+                                />
+                            )}
+                            <span id="name">{searchedUser.username}</span>
+                            {searchedUser.bio && <span id="biodata">{searchedUser.bio}</span>}
+
+                            <div id="details">
+                                <span className="in">
+                                    <span className="value">{searchedUser.total_posts}</span> Posts
+                                </span>
+                                <span className="in">
+                                    <span className="value">{searchedUser.followers_count}</span> Followers
+                                </span>
+                                <span className="in">
+                                    <span className="value">{searchedUser.total_likes}</span> Likes
+                                </span>
                             </div>
-                            <div id="textes">
-                            <p id="title">{top.username}</p>
+
+                            {userId !== searchedUser.userId && (
+                                <div id="follow-wrapper">
+                                    <button onClick={toggleFollow} id="followBtn">
+                                        {isFollowing ? "Unfollow" : "Follow"}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    {top.caption && <p id="top">{top.caption}</p>}
-                    {top.imageUrl && <img id="postpic" src={'http://localhost:5000/uploads/'+top.imageUrl} alt="uploaded photo"/>}
-                    <div id="below">
-                        <div className='icons'><FontAwesomeIcon style={{color: hasUserLikedTweet(top.id) ? 'red' :'black',}}icon='heart'onClick={()=> handleLove(top.id)}/><span className="numbers">{likesData[index] ? likesData[index].likes : 0}</span></div>
-                        <div className='icons'><FontAwesomeIcon icon="comment"/><span className="numbers">0</span></div>
-                        <div className='icons'><FontAwesomeIcon icon="retweet"/><span className="numbers">0</span></div>
-                    </div>
+
+                    <div id="cards2">
+                        {posts.map((post, index) => (
+                            <div id="post" key={post.id}>
+                                <div id="content">
+                                    <div id="horizon">
+                                        <div id="images">
+                                            <img
+                                                id="postimage"
+                                                src={`https://titoserver.onrender.com/uploads/${post.profile_picture}`}
+                                                alt="Profile"
+                                            />
+                                        </div>
+                                        <div id="textes">
+                                            <p id="title">{post.username}</p>
+                                        </div>
+                                    </div>
+                                    {post.caption && <p id="top">{post.caption}</p>}
+                                    {post.imageUrl && (
+                                        <img
+                                            id="postpic"
+                                            src={`https://titoserver.onrender.com/uploads/${post.imageUrl}`}
+                                            alt="Uploaded"
+                                        />
+                                    )}
+                                    <div id="below">
+                                        <div className="icons">
+                                            <FontAwesomeIcon
+                                                icon="heart"
+                                                style={{ color: hasUserLiked(post.id) ? 'red' : 'black' }}
+                                                onClick={() => handleLike(post.id)}
+                                            />
+                                            <span className="numbers">
+                                                {likesData.find(l => l.tweetId === post.id)?.likes || 0}
+                                            </span>
+                                        </div>
+                                        <div className="icons"><FontAwesomeIcon icon="comment" /><span className="numbers">0</span></div>
+                                        <div className="icons"><FontAwesomeIcon icon="retweet" /><span className="numbers">0</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            ))}
+            )}
+
+            <Navbar />
         </div>
-        </div>
-        <Navbar/>
-        </div>
-   )
-    
+    );
 }
+
 export default Search;

@@ -40,7 +40,7 @@ function Post() {
 
     const fetchTweets = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/tweets');
+            const response = await axios.get('https://titoserver.onrender.com/api/tweets');
             const reversedData = [...response.data].reverse();
             setTops(reversedData);
             setReverseTops(reversedData);
@@ -54,7 +54,7 @@ function Post() {
         try {
             const likesPromises = reverseTops.map(async (top) => {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/tweets/${top.id}/likes`);
+                    const response = await axios.get(`https://titoserver.onrender.com/api/tweets/${top.id}/likes`);
                     return { tweetId: top.id, likes: response.data.likecounts };
                 } catch (error) {
                     console.error('Error fetching likes:', error);
@@ -77,7 +77,7 @@ function Post() {
         try {
             const commentPromises = reverseTops.map(async (top) => {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/tweets/${top.id}/comments/count`);
+                    const response = await axios.get(`https://titoserver.onrender.com/api/tweets/${top.id}/comments/count`);
                     return { tweetId: top.id, comments: response.data.count };
                 } catch (error) {
                     console.error('Error fetching comment count:', error);
@@ -98,7 +98,7 @@ function Post() {
 
     const handleLove = async (tweetid) => {
         try {
-            const response = await axios.post(`http://localhost:5000/api/tweets/${tweetid}/like`, { userId });
+            const response = await axios.post(`https://titoserver.onrender.com/api/tweets/${tweetid}/like`, { userId });
             const updatedLiked = response.data.liked;
             setLikesData((prevLikes) => ({
                 ...prevLikes,
@@ -123,12 +123,14 @@ function Post() {
                                 <div id="images">
                                     <img 
                                         id="postimage" 
-                                        src={top.profile_picture ? `http://localhost:5000/uploads/${top.profile_picture}` : defaultProfilePic} 
+                                        onClick={() => navigate(`/user/${top.username}`)}
+                                        src={top.profile_picture ? `https://titoserver.onrender.com/uploads/${top.profile_picture}` : defaultProfilePic} 
                                         alt="profilepic" 
                                     />
                                 </div>
                                 <div id="textes">
-                                    <p id="title">{top.username}</p>
+                                    <p id="title" onClick={() => navigate(`/user/${top.username}`)}
+>{top.username}</p>
                                 </div>
                                 <FontAwesomeIcon 
                                     icon="ellipsis-h" 
@@ -138,7 +140,7 @@ function Post() {
                                 {top.id === Id && <General option={option} onCancel={() => setOption(false)} />}
                             </div>
                             {top.caption && <p id="top">{top.caption}</p>}
-                            {top.imageUrl && <img id="postpic" src={'http://localhost:5000/uploads/' + top.imageUrl} alt="uploaded photo" />}
+                            {top.imageUrl && <img id="postpic" src={'https://titoserver.onrender.com/uploads/' + top.imageUrl} alt="uploaded photo" />}
                             <div id="below">
                                 <div className='icons'>
                                     <FontAwesomeIcon 
